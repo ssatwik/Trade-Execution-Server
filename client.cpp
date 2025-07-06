@@ -54,24 +54,50 @@ int readFromTerminal() {
 int main() {
     socklen_t addrLen;
 
+    // clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    // if (clientSocket < 0) {
+    //     cout << "[-] Socket error\n";
+    //     exit(1);
+    // }
+    // cout << "[+] TCP Client Socket created.\n";
+    // bzero(&serverAddr, sizeof(serverAddr));
+
+    // serverAddr.sin_family = AF_INET;
+    // // serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    // inet_pton(AF_INET, serverIP, &serverAddr.sin_addr);
+
+    // serverAddr.sin_port = serverPort;
+
+    // int connectionStatus = connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+    // if (connectionStatus != 0) {
+    //     cout << "[-] Connection failed.\n";
+    //     exit(1);
+    // }
+    // cout << "[+] Connected to server.\n";
+
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket < 0) {
         cout << "[-] Socket error\n";
         exit(1);
     }
     cout << "[+] TCP Client Socket created.\n";
-    bzero(&serverAddr, sizeof(serverAddr));
 
+    bzero(&serverAddr, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serverAddr.sin_port = serverPort;
+    serverAddr.sin_port = htons(serverPort);
+
+    if (inet_pton(AF_INET, serverIP, &serverAddr.sin_addr) <= 0) {
+        cout << "[-] Invalid address/ Address not supported.\n";
+        exit(1);
+    }
 
     int connectionStatus = connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     if (connectionStatus != 0) {
-        cout << "[-] Connection failed.\n";
+        perror("[-] Connection failed"); 
         exit(1);
     }
     cout << "[+] Connected to server.\n";
+
 
     pthread_create(&socketThread, NULL, handleServerResponse, NULL);
     pthread_create(&terminalThread, NULL, handleTerminalInput, NULL);
