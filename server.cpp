@@ -76,7 +76,7 @@ public:
         stockId = id;
     }
     
-    string getOrderDetails() {
+    string getOrderDetails() const {
         string output = "orderID:" + to_string(orderId) + " | ";
         output += originalText;
         while(!output.empty() && output.back() == '\n') {
